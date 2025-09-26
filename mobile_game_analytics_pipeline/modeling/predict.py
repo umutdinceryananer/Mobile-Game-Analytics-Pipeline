@@ -1,8 +1,8 @@
 from pathlib import Path
 
+import typer
 from loguru import logger
 from tqdm import tqdm
-import typer
 
 from mobile_game_analytics_pipeline.config import MODELS_DIR, PROCESSED_DATA_DIR
 

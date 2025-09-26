@@ -1,49 +1,17 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "mobile_game_analytics_pipeline"
-version = "0.0.1"
-description = "A short description of the project."
-authors = [
-  { name = "Umut Dincer Yananer" },
-]
-license = { file = "LICENSE" }
-readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License"
-]
-requires-python = "~=3.11.0"
+name = "mobile-game-analytics-pipeline"
+version = "0.1.0"
+requires-python = ">=3.10"
 
-
-[tool.ruff]
-line-length = 99
-src = ["mobile_game_analytics_pipeline"]
-include = ["pyproject.toml", "mobile_game_analytics_pipeline/**/*.py"]
-
-[tool.ruff.lint]
-extend-select = ["I"]  # Add import sorting
-
-[tool.ruff.lint.isort]
-known-first-party = ["mobile_game_analytics_pipeline"]
-force-sort-within-sections = true
-
-@'
 [tool.black]
-line-length = 100
-target-version = ["py311"]
+line-length = 88
+target-version = ["py310"]
+extend-exclude = "docs/"
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["mobile_game_analytics_pipeline"]
-
-[tool.flake8]
-max-line-length = 100
-extend-ignore = ["E203","W503"]
-per-file-ignores = [
-  "__init__.py:F401"
-]
-'@ | Set-Content -Encoding UTF8 pyproject.toml
+line_length = 88
