@@ -109,13 +109,6 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         else:
             df["session_count"] = 0
 
-    # purchase flag (if missing, synthesize a reasonable proxy)
-    if "purchase" not in df.columns:
-        sc = df["session_count"].fillna(0).astype(float)
-        # Higher sessions -> higher purchase prob, cap at 35%
-        p = (sc / (sc.max() + 1.0)).clip(0.0, 0.35)
-        df["purchase"] = rng.binomial(1, p)
-
     # --------------------------------
     # 1) acquisition_channel per config
     # --------------------------------
@@ -173,9 +166,80 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         salt="::platform",
     )
 
+    # --------------------------------
+    # 1c) Purchase probability enrichment
+    # --------------------------------
+    if "purchase" not in df.columns:
+        purchase_cfg = cfg.get("purchase", {})
+        base_rate = float(purchase_cfg.get("base_rate", 0.02))
+        session_weight = float(purchase_cfg.get("session_log1p_weight", 0.03))
+        session_center = float(purchase_cfg.get("session_center", 10.0))
+        min_rate = float(purchase_cfg.get("min_rate", 0.0))
+        max_rate = float(purchase_cfg.get("max_rate", 0.5))
+        random_jitter = float(purchase_cfg.get("random_jitter", 0.0))
+        channel_lift = purchase_cfg.get("channel_lift", {}) or {}
+        platform_lift = purchase_cfg.get("platform_lift", {}) or {}
+        version_lift = purchase_cfg.get("version_lift", {}) or {}
+
+        session_values = df["session_count"].fillna(0).to_numpy(dtype=float)
+        session_center = session_center if session_center > 0 else 1.0
+        log_component = np.log1p(session_values / session_center)
+
+        prob = base_rate + session_weight * log_component
+
+        if channel_lift:
+            prob += (
+                df["acquisition_channel"]
+                .map(channel_lift)
+                .fillna(0.0)
+                .to_numpy(dtype=float)
+            )
+        if platform_lift:
+            prob += df["platform"].map(platform_lift).fillna(0.0).to_numpy(dtype=float)
+        if version_lift and "version" in df.columns:
+            prob += df["version"].map(version_lift).fillna(0.0).to_numpy(dtype=float)
+
+        if random_jitter > 0:
+            prob += rng.normal(0.0, random_jitter, size=len(df))
+
+        prob = np.clip(prob, min_rate, max_rate)
+        df["purchase"] = rng.binomial(1, prob)
+
     normalized_platform_weights = None
     platform_weights_cfg = platform_cfg.get("revenue_weights")
-    if platform_weights_cfg:
+    target_share_cfg = platform_cfg.get("revenue_target_shares")
+
+    if platform_weights_cfg and target_share_cfg:
+        raise ValueError(
+            "Use either platform.revenue_weights or platform.revenue_target_shares, not both."
+        )
+
+    if target_share_cfg:
+        shares = {}
+        for label in platform_labels:
+            if label not in target_share_cfg:
+                raise ValueError(
+                    f"Revenue target share missing for platform '{label}'."
+                )
+            share = float(target_share_cfg[label])
+            if share <= 0:
+                raise ValueError("Revenue target shares must be positive.")
+            shares[label] = share
+        total_share = sum(shares.values())
+        if total_share <= 0:
+            raise ValueError("Revenue target shares must sum to a positive value.")
+
+        shares = {label: share / total_share for label, share in shares.items()}
+
+        normalized_platform_weights = {}
+        for label, prob in zip(platform_labels, platform_probs):
+            prob_value = float(prob)
+            if prob_value <= 0:
+                raise ValueError(
+                    "Platform probabilities must be positive when revenue shares are applied."
+                )
+            normalized_platform_weights[label] = shares[label] / prob_value
+    elif platform_weights_cfg:
         weights = {}
         for label in platform_labels:
             if label not in platform_weights_cfg:
@@ -200,7 +264,6 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
             normalized_platform_weights[label] = (
                 weights[label] / total_weight
             ) / prob_value
-
     # --------------------------------
     # 2) CAC mapping (early validation)
     # --------------------------------
@@ -220,30 +283,29 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     # 3) Revenue (IAP + ad revenue)
     # -----------------------------
     rev_cfg = cfg["revenue"]
-    shape, scale = rev_cfg["iap_gamma_shape"], rev_cfg["iap_gamma_scale"]
+    shape = rev_cfg["iap_gamma_shape"]
+    scale = rev_cfg["iap_gamma_scale"]
     ad_per_sess = rev_cfg["ad_revenue_per_session"]
     use_user_seed = rev_cfg.get("use_user_seed", True)
 
-    # IAP revenue (only for purchase=1)
     if use_user_seed:
-        # per-user deterministic gamma
+
         def user_gamma(uid):
             s = int(hashlib.sha256(str(uid).encode()).hexdigest()[:8], 16)
             r = np.random.default_rng(s)
             return r.gamma(shape, scale)
 
         iap = df.apply(
-            lambda r: user_gamma(r["userid"]) if r["purchase"] == 1 else 0.0, axis=1
+            lambda r: user_gamma(r["userid"]) if r["purchase"] == 1 else 0.0,
+            axis=1,
         )
     else:
         iap = np.where(df["purchase"] == 1, rng.gamma(shape, scale, size=len(df)), 0.0)
 
-    # Ad revenue (session-based; log transform helps with heavy tails)
     ad_base = np.log1p(df["session_count"].fillna(0).astype(float))
     ad_rev = ad_base * ad_per_sess
 
     df["revenue"] = (pd.Series(iap, index=df.index) + ad_rev).clip(lower=0.0)
-
     if normalized_platform_weights:
         multipliers = df["platform"].map(normalized_platform_weights).astype(float)
         df["revenue"] = df["revenue"] * multipliers
@@ -284,6 +346,11 @@ def validate_processed(df: pd.DataFrame, cfg: dict):
 
     platform_cfg = cfg.get("platform", {})
     revenue_weights = platform_cfg.get("revenue_weights")
+    target_shares = platform_cfg.get("revenue_target_shares")
+    if revenue_weights and target_shares:
+        raise AssertionError(
+            "Define either platform.revenue_weights or platform.revenue_target_shares, not both."
+        )
     if revenue_weights:
         labels = platform_cfg.get("labels", [])
         missing_weights = [label for label in labels if label not in revenue_weights]
@@ -301,6 +368,27 @@ def validate_processed(df: pd.DataFrame, cfg: dict):
                 "Platform revenue weights must be positive. "
                 f"Found non-positive values: {non_positive}"
             )
+    if target_shares:
+        labels = platform_cfg.get("labels", [])
+        missing_shares = [label for label in labels if label not in target_shares]
+        if missing_shares:
+            raise AssertionError(
+                "Platform revenue target shares missing for: "
+                f"{sorted(missing_shares)}"
+            )
+        non_positive = {
+            label: target_shares[label]
+            for label in labels
+            if float(target_shares[label]) <= 0
+        }
+        if non_positive:
+            raise AssertionError(
+                "Platform revenue target shares must be positive. "
+                f"Found non-positive values: {non_positive}"
+            )
+        total_share = sum(float(target_shares[label]) for label in labels)
+        if total_share <= 0:
+            raise AssertionError("Revenue target shares must sum to a positive value.")
 
 
 def save_meta(meta_path: Path, cfg: dict, input_name: str) -> None:
@@ -339,12 +427,15 @@ def main():
     # Save outputs
     out_path = PROCESSED_DIR / "events.parquet"
     df.to_parquet(out_path, index=False)
+    csv_path = PROCESSED_DIR / "clean_data.csv"
+    df.to_csv(csv_path, index=False)
     save_meta(
         PROCESSED_DIR / "_meta.synthetic.json",
         cfg,
         raw_file.name,
     )
     print(f"Processed saved -> {out_path}")
+    print(f"CSV saved -> {csv_path}")
 
 
 if __name__ == "__main__":

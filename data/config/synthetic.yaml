@@ -8,15 +8,15 @@ acquisition_channel:
   assign_mode: "hash"  # "hash" | "random"
 
 cac:
-  Instagram: 2.5
-  Facebook: 3.0
-  TikTok: 1.5
-  Organic: 0.0
+  Instagram: 2.3
+  Facebook: 2.8
+  TikTok: 1.7
+  Organic: 0.3
 
 revenue:
-  iap_gamma_shape: 2.0
-  iap_gamma_scale: 5.0
-  ad_revenue_per_session: 0.05
+  iap_gamma_shape: 2.2
+  iap_gamma_scale: 8.0
+  ad_revenue_per_session: 0.08
   use_user_seed: true
 
 geo:
@@ -27,8 +27,9 @@ geo:
 
 platform:
   labels: ["App Store", "Google Play"]
-  probs:  [0.25,        0.75]
+  probs:  [0.25, 0.75]
   assign_mode: "hash"
-  revenue_weights:
-    "App Store": 26
-    "Google Play": 9
+
+  revenue_target_shares:
+    "App Store": 0.742857
+    "Google Play": 0.257143
