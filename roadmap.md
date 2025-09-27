@@ -13,22 +13,29 @@ Mobil oyun kullanıcı davranışlarını üretilen veriseti üzerinden analiz e
 
 ## Zaman Planı (3 Günlük Çalışma)
 
-### Gün 1 — Veri Keşfi & Hazırlık
+### Day 1 — Data Exploration & Preparation (completed)
 
-* [ ] Kaggle’dan **Cookie Cats A/B Test Dataset** indir
-* [ ] Sentetik veri ekleme (`acquisition_channel`, `CAC`, `revenue`, `ROI`)
-* [ ] Data exploration: kullanıcı sayısı, seans dağılımı, satın alma oranı
-* [ ] Eksik veri, outlier, duplicate kontrolü
-* [ ] SQL ile basit sorgular (ör. günlük install sayısı)
+Processed the Cookie Cats dataset, verified no missing values or duplicate user IDs.
+Added synthetic columns deterministically, driven by configuration:
+* [ ] acquisition_channel (Instagram, Facebook, TikTok, Organic)
+* [ ] CAC (channel-based customer acquisition cost)
+* [ ] purchase (session-based probability)
+* [ ] revenue (in-app purchases via gamma distribution + ad revenue per session)
+* [ ] ROI (return on investment per user)
+* [ ] country (USA, Mexico, Brazil, with realistic distribution)
+* [ ] platform (App Store, Google Play, calibrated to installs and revenue split)
 
-**Input:** raw_data.csv
-**Output:** /processed/clean_data.csv, parquet file, eda.ipynb çıktıları, başarılı pytest sonuçları
+Updated synthetic.yaml: increased CAC variance, scaled up revenue parameters, calibrated platform revenue shares to match 26M vs 9M distribution.
+Added automated tests (pytest, 6 tests) to validate schema, distributions, and revenue shares. All tests passed.
 
-**Başarı Kriterleri:**
-
-* [ ] Eksik veriler %5’in altında
-* [ ] Sentetik değişkenler başarılı şekilde eklendi
-* [ ] İlk görselleştirmeler (distribution plots) üretildi
+Initial EDA results:
+* [ ] 90,189 rows, 12 columns
+* [ ] Global purchase rate: 5.58%
+* [ ] Retention: D1 ≈ 44.5%, D7 ≈ 18.6%
+* [ ] Average sessions: 51.9 (median 16, heavy-tailed, >425 sessions flagged as outliers)
+* [ ] Channel, platform, and country distributions match configuration
+* [ ] Platform performance: App Store ≈ 24.9% of installs but ≈ 74.4% of revenue; Google Play ≈ 75.1% of installs and ≈ 25.6% of revenue
+* [ ] Revenue and ROI distributions widened; ROI remains negative on average but is suitable for scenario analysis
 
 ---
 
