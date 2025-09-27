@@ -1,3 +1,5 @@
+# Source of Truth
+
 seed: 42
 
 acquisition_channel:
@@ -16,3 +18,17 @@ revenue:
   iap_gamma_scale: 5.0
   ad_revenue_per_session: 0.05
   use_user_seed: true
+
+geo:
+  country:
+    labels: ["USA", "Mexico", "Brazil"]
+    probs:  [0.772727, 0.136364, 0.090909]
+    assign_mode: "hash"
+
+platform:
+  labels: ["App Store", "Google Play"]
+  probs:  [0.25,        0.75]
+  assign_mode: "hash"
+  revenue_weights:
+    "App Store": 26
+    "Google Play": 9

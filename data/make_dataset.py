@@ -3,7 +3,8 @@
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -14,24 +15,73 @@ from dotenv import load_dotenv
 # Environment & paths
 # --------------------------------------------------------------------------------------
 load_dotenv()
-RAW_DIR = os.getenv("DATA_RAW_DIR", "data/raw")
-PROCESSED_DIR = os.getenv("DATA_PROCESSED_DIR", "data/processed")
-# You preferred keeping config under data/, so default there:
-CONFIG_PATH = os.getenv("SYNTH_CONFIG", "data/config/synthetic.yaml")
+
+PROJ_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _resolve_path(path_value: str | None, default: Path) -> Path:
+    path = Path(path_value) if path_value else default
+    if not path.is_absolute():
+        path = (PROJ_ROOT / path).resolve()
+    return path
+
+
+RAW_DIR = _resolve_path(os.getenv("DATA_RAW_DIR"), PROJ_ROOT / "data" / "raw")
+PROCESSED_DIR = _resolve_path(
+    os.getenv("DATA_PROCESSED_DIR"), PROJ_ROOT / "data" / "processed"
+)
+CONFIG_PATH = _resolve_path(
+    os.getenv("SYNTH_CONFIG"), PROJ_ROOT / "data" / "config" / "synthetic.yaml"
+)
 
 
 # --------------------------------------------------------------------------------------
 # Helpers
 # --------------------------------------------------------------------------------------
-def stable_bucket(key: str, buckets: int) -> int:
-    """Deterministic bucket assignment for a given key (SHA-256 based)."""
-    h = hashlib.sha256(str(key).encode()).hexdigest()
-    return int(h[:8], 16) % buckets
+
+
+def _assign_categorical(
+    ids: pd.Series,
+    labels: list[str],
+    probs: list[float],
+    mode: str,
+    rng: np.random.Generator,
+    salt: str = "",
+) -> pd.Series:
+    labels = [str(label).strip() for label in labels]
+    probs_arr = np.asarray(probs, dtype=float)
+    if probs_arr.sum() <= 0:
+        raise ValueError("Probabilities must sum to a positive value.")
+    probs_arr = probs_arr / probs_arr.sum()
+
+    if mode == "hash":
+        cumulative = probs_arr.cumsum()
+        denominator = 16 ** len(hashlib.sha256().hexdigest())
+
+        def pick_label(value: object) -> str:
+            key = f"{value}{salt}"
+            h_val = hashlib.sha256(key.encode()).hexdigest()
+            fraction = int(h_val, 16) / denominator
+            if fraction >= 1.0:
+                fraction = np.nextafter(1.0, 0.0)
+            idx = int(np.searchsorted(cumulative, fraction, side="right"))
+            if idx >= len(labels):
+                idx = len(labels) - 1
+            return labels[idx]
+
+        assigned = ids.apply(pick_label)
+    else:
+        assigned = pd.Series(
+            rng.choice(labels, size=len(ids), p=probs_arr), index=ids.index
+        )
+
+    return assigned.astype(str).str.strip()
 
 
 def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """
-    Adds acquisition_channel, CAC, revenue, ROI columns in a deterministic, config-driven way.
+    Adds acquisition_channel, CAC, revenue, ROI, country, and platform columns in a
+    deterministic, config-driven way.
     Assumptions for Cookie Cats-like data:
       - user id column is 'userid'
       - session count proxy can be 'session_count' or 'sum_gamerounds'
@@ -69,19 +119,87 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     # --------------------------------
     # 1) acquisition_channel per config
     # --------------------------------
-    ch_labels = cfg["acquisition_channel"]["labels"]
-    ch_probs = cfg["acquisition_channel"]["probs"]
-    assign_mode = cfg["acquisition_channel"].get("assign_mode", "hash")
+    ch_cfg = cfg["acquisition_channel"]
+    ch_labels = ch_cfg["labels"]
+    ch_probs = ch_cfg["probs"]
+    assign_mode = ch_cfg.get("assign_mode", "hash")
 
-    if assign_mode == "hash":
-        buckets = len(ch_labels)
-        idx = df["userid"].apply(lambda x: stable_bucket(x, buckets))
-        df["acquisition_channel"] = idx.apply(lambda i: ch_labels[i])
-    else:  # "random" (deterministic via global seed)
-        df["acquisition_channel"] = rng.choice(ch_labels, size=len(df), p=ch_probs)
+    df["acquisition_channel"] = _assign_categorical(
+        df["userid"],
+        labels=ch_labels,
+        probs=ch_probs,
+        mode=assign_mode,
+        rng=rng,
+        salt="::acquisition_channel",
+    )
 
-    # normalize channel strings
-    df["acquisition_channel"] = df["acquisition_channel"].astype(str).str.strip()
+    # --------------------------------
+    # 1a) country per config
+    # --------------------------------
+    country_cfg = cfg.get("geo", {}).get("country")
+    if not country_cfg:
+        raise ValueError("geo.country config section is required.")
+
+    country_labels = country_cfg["labels"]
+    country_probs = country_cfg["probs"]
+    country_assign_mode = country_cfg.get("assign_mode", "hash")
+
+    df["country"] = _assign_categorical(
+        df["userid"],
+        labels=country_labels,
+        probs=country_probs,
+        mode=country_assign_mode,
+        rng=rng,
+        salt="::country",
+    )
+
+    # --------------------------------
+    # 1b) platform per config
+    # --------------------------------
+    platform_cfg = cfg.get("platform")
+    if not platform_cfg:
+        raise ValueError("platform config section is required.")
+
+    platform_labels = platform_cfg["labels"]
+    platform_probs = platform_cfg["probs"]
+    platform_assign_mode = platform_cfg.get("assign_mode", "hash")
+
+    df["platform"] = _assign_categorical(
+        df["userid"],
+        labels=platform_labels,
+        probs=platform_probs,
+        mode=platform_assign_mode,
+        rng=rng,
+        salt="::platform",
+    )
+
+    normalized_platform_weights = None
+    platform_weights_cfg = platform_cfg.get("revenue_weights")
+    if platform_weights_cfg:
+        weights = {}
+        for label in platform_labels:
+            if label not in platform_weights_cfg:
+                raise ValueError(
+                    f"Platform revenue weight missing for label '{label}'."
+                )
+            weight = float(platform_weights_cfg[label])
+            if weight <= 0:
+                raise ValueError("Platform revenue weights must be positive.")
+            weights[label] = weight
+        total_weight = sum(weights.values())
+        if total_weight <= 0:
+            raise ValueError("Platform revenue weights must sum to a positive value.")
+
+        normalized_platform_weights = {}
+        for label, prob in zip(platform_labels, platform_probs):
+            prob_value = float(prob)
+            if prob_value <= 0:
+                raise ValueError(
+                    "Platform probabilities must be positive when revenue weights are applied."
+                )
+            normalized_platform_weights[label] = (
+                weights[label] / total_weight
+            ) / prob_value
 
     # --------------------------------
     # 2) CAC mapping (early validation)
@@ -126,6 +244,10 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
 
     df["revenue"] = (pd.Series(iap, index=df.index) + ad_rev).clip(lower=0.0)
 
+    if normalized_platform_weights:
+        multipliers = df["platform"].map(normalized_platform_weights).astype(float)
+        df["revenue"] = df["revenue"] * multipliers
+
     # -----------------------------
     # 4) ROI (safe division)
     # -----------------------------
@@ -135,12 +257,14 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     return df
 
 
-def validate_processed(df: pd.DataFrame):
+def validate_processed(df: pd.DataFrame, cfg: dict):
     """Lightweight schema/logic checks with actionable messages."""
     assert "acquisition_channel" in df, "acquisition_channel column is missing."
     assert {"CAC", "revenue", "ROI"}.issubset(
         df.columns
     ), "CAC/revenue/ROI columns are missing."
+    assert "country" in df, "country column is missing."
+    assert "platform" in df, "platform column is missing."
 
     if df["CAC"].isna().any():
         bad = df.loc[df["CAC"].isna(), "acquisition_channel"].value_counts()
@@ -158,28 +282,48 @@ def validate_processed(df: pd.DataFrame):
     if not np.isfinite(df["ROI"]).all():
         raise AssertionError("Non-finite ROI detected (check CAC=0 handling).")
 
+    platform_cfg = cfg.get("platform", {})
+    revenue_weights = platform_cfg.get("revenue_weights")
+    if revenue_weights:
+        labels = platform_cfg.get("labels", [])
+        missing_weights = [label for label in labels if label not in revenue_weights]
+        if missing_weights:
+            raise AssertionError(
+                "Platform revenue weights missing for: " f"{sorted(missing_weights)}"
+            )
+        non_positive = {
+            label: revenue_weights[label]
+            for label in labels
+            if float(revenue_weights[label]) <= 0
+        }
+        if non_positive:
+            raise AssertionError(
+                "Platform revenue weights must be positive. "
+                f"Found non-positive values: {non_positive}"
+            )
 
-def save_meta(meta_path: str, cfg: dict, input_name: str):
+
+def save_meta(meta_path: Path, cfg: dict, input_name: str) -> None:
     """Write a small JSON with provenance and config hash."""
     meta = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "config_hash": hashlib.sha256(yaml.dump(cfg).encode()).hexdigest(),
         "raw_source": input_name,
-        "notes": "Added acquisition_channel, CAC, revenue, ROI (synthetic).",
+        "notes": "Added acquisition_channel, CAC, revenue, ROI, country, platform (synthetic).",
     }
-    with open(meta_path, "w", encoding="utf-8") as f:
+    with meta_path.open("w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
 
 
 def main():
-    os.makedirs(PROCESSED_DIR, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     # Load config
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    with CONFIG_PATH.open("r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
     # Load raw data
-    raw_file = os.path.join(RAW_DIR, "cookie_cats.csv")
+    raw_file = RAW_DIR / "cookie_cats.csv"
     df = pd.read_csv(raw_file)
 
     # Basic datetime cast (if present)
@@ -190,15 +334,15 @@ def main():
     df = add_synthetic_columns(df, cfg)
 
     # Validate
-    validate_processed(df)
+    validate_processed(df, cfg)
 
     # Save outputs
-    out_path = os.path.join(PROCESSED_DIR, "events.parquet")
+    out_path = PROCESSED_DIR / "events.parquet"
     df.to_parquet(out_path, index=False)
     save_meta(
-        os.path.join(PROCESSED_DIR, "_meta.synthetic.json"),
+        PROCESSED_DIR / "_meta.synthetic.json",
         cfg,
-        os.path.basename(raw_file),
+        raw_file.name,
     )
     print(f"Processed saved -> {out_path}")
 
