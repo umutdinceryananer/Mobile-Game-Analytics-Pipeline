@@ -1,0 +1,18 @@
+seed: 42
+
+acquisition_channel:
+  labels: ["Instagram", "Facebook", "TikTok", "Organic"]
+  probs:  [0.40,      0.30,         0.20,     0.10]
+  assign_mode: "hash"  # "hash" | "random"
+
+cac:
+  Instagram: 2.5
+  Facebook: 3.0
+  TikTok: 1.5
+  Organic: 0.0
+
+revenue:
+  iap_gamma_shape: 2.0
+  iap_gamma_scale: 5.0
+  ad_revenue_per_session: 0.05
+  use_user_seed: true
