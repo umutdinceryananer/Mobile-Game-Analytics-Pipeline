@@ -83,6 +83,7 @@ prophet==1.1.7
 psutil==7.1.0
 psycopg2==2.9.10
 pure_eval==0.2.3
+pyarrow>=15.0.0
 pycodestyle==2.14.0
 pycparser==2.23
 pyflakes==3.4.0
