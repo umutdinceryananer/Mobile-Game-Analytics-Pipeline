@@ -20,4 +20,5 @@ SELECT
   s_install * 1.0 / NULLIF(n_users, 0)   AS rate_install,
   s_d1      * 1.0 / NULLIF(s_install, 0) AS rate_d1_from_install,
   s_d7      * 1.0 / NULLIF(s_d1, 0)      AS rate_d7_from_d1,
-  s_purchase* 1.0 / NULLIF(s_d7, 0)      AS rate_purchase_from_d7;
+  s_purchase* 1.0 / NULLIF(s_d7, 0)      AS rate_purchase_from_d7
+FROM steps;

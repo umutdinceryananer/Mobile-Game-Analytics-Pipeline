@@ -34,7 +34,7 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 * 2.0-ROI-and-ROAS-by-Channel.ipynb → roas_analysis.ipynb
     * Computes ROI/ROAS by acquisition channel (+optional platform), exports ranked tables and visuals, ends with 3 actionable recommendations.
 
-* 2.1-Retention-Cohorts.ipynb → retention_cohort.ipynb
+* 2.1-Retention-Cohorts.ipynb
     * D1/D7 cohort heatmaps and top/bottom channel lists, with short commentary on implications.
 
 * 3.0-Forecast-or-Churn.ipynb (new, compact)
@@ -137,7 +137,7 @@ SQL is stored in **`references/sql/`** and loaded from notebooks at runtime.
 All notebooks **export tables and figures** to a consistent location:
 
 * **Tables:** `reports/tables/`
-  * `funnel.csv`, `roi_by_channel.csv`, `retention_by_channel.csv`, `backtest_scores.csv`, `model_metrics.json`
+  * `funnel.csv`, `funnel_long.csv`, `roi_by_channel.csv`, `roi_by_channel_long.csv`, `retention_by_channel.csv`, `retention_cohort_by_version.csv`
 
 * **Figures:** `reports/figures/`
   * `funnel.png`, `roi_by_channel.png`, `retention_heatmap.png`, `forecast_plot.png` or `roc_pr_curves.png`
@@ -170,24 +170,23 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 **Acquisition & Funnel**
 
-* *Conversion funnel:* Install → Onboarding → D1 return → Purchase. Current run shows:
-
-  * **Install → Onboarding:** ~`X%` (baseline FTUE completion)
-  * **Onboarding → D1:** ~`Y%` (early retention health)
-  * **D1 → Purchase:** ~`Z%` (monetization gate)
+* *Conversion funnel:* Install -> Onboarding -> D1 return -> Purchase. Current run shows:
+  * **Install -> Onboarding:** ~`95.6%` (baseline FTUE completion)
+  * **Onboarding -> D1:** ~`46.6%` (early retention health)
+  * **D1 -> Purchase:** ~`12.5%` (monetization gate)
 * *Action:* Focus UX experiments on the largest drop (e.g., onboarding), and validate with an A/B test.
 
 **ROI/ROAS by Channel**
 
-* **Top channels:** `Instagram` / `Organic` (example) with **ROAS ≈ `1.xx`**, **ROI ≈ `+yy%`**.
-* **Underperformers:** `TikTok` (example) with **ROAS ≈ `0.xx`** (below break‑even).
-* *Action:* Reallocate **+10–20% UA budget** to top channels; test creative iteration for low‑ROAS channels before further spend.
+* **Top channel:** `Organic` delivers **ROAS ~`4.03`**, **ROI ~`+303%`**, and is the only source above break-even.
+* **Underperformers:** Paid UA (e.g., `TikTok` ROAS ~`0.76`, `Instagram` ROAS ~`0.51`) remains below break-even.
+* *Action:* Reallocate **+10-20% UA budget** to top channels; test creative iteration for low-ROAS channels before further spend.
 
 **Retention Cohorts (D1/D7)**
 
-* **D1 retention:** median ≈ `a%`, best channel ≈ `a+Δ%`.
-* **D7 retention:** median ≈ `b%`, best channel ≈ `b+Δ%`.
-* *Action:* Prioritize **best‑quality sources** (high D7) for long‑term value; refine onboarding for channels with high D1 but weak D7.
+* **D1 retention:** overall average ~`44.5%`; `Instagram` leads at ~`44.9%`.
+* **D7 retention:** ~`18.6%` of installs return on day 7, and `Organic` keeps ~`42.1%` of its D1 returners through D7.
+* *Action:* Prioritize **best-quality sources** (high D7) for long-term value; refine onboarding for channels with high D1 but weak D7.
 
 **Prediction/Forecast (optional path)**
 
