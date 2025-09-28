@@ -1,12 +1,10 @@
--- Channel-level ROI = (SUM(revenue) - SUM(CAC)) / SUM(CAC)
--- ROAS = SUM(revenue) / SUM(CAC)
 WITH agg AS (
   SELECT
     acquisition_channel,
-    COUNT(*)                  AS users,
-    SUM(COALESCE(revenue,0))  AS revenue,
-    SUM(COALESCE(cac,0))      AS ad_spend
-  FROM users
+    COUNT(*)                            AS users,
+    SUM(COALESCE(revenue, 0.0))         AS revenue,
+    SUM(COALESCE(CAC, 0.0))             AS ad_spend
+  FROM events
   GROUP BY 1
 )
 SELECT
