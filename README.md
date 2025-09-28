@@ -239,23 +239,6 @@ This section summarizes key insights, embeds exported figures, and outlines limi
   <param name='language' value='en-US' />
   <param name='filter' value='publish=yes' />
 </object></div>
-<script type='text/javascript'>
-  var divElement = document.getElementById('viz1759097764622');
-  var vizElement = divElement.getElementsByTagName('object')[0];
-  if (divElement.offsetWidth > 800) {
-    vizElement.style.width = '1300px';
-    vizElement.style.height = '927px';
-  } else if (divElement.offsetWidth > 500) {
-    vizElement.style.width = '1300px';
-    vizElement.style.height = '927px';
-  } else {
-    vizElement.style.width = '100%';
-    vizElement.style.height = '1777px';
-  }
-  var scriptElement = document.createElement('script');
-  scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-  vizElement.parentNode.insertBefore(scriptElement, vizElement);
-</script>
 
 ---
 
