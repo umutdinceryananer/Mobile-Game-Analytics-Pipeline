@@ -4,55 +4,20 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-## Project Organization
+## Executive Summary
 
-```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
-│
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for
-│                         mobile_game_analytics_pipeline and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── mobile_game_analytics_pipeline   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes mobile_game_analytics_pipeline a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling
-    │   ├── __init__.py
-    │   ├── predict.py          <- Code to run model inference with trained models
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
-```
+This repository demonstrates a comprehensive analytics workflow for marketing performance analysis, covering user funnel optimization, retention cohorts, trend analysis, and predictive modeling. The project showcases modern data analysis techniques including SQL-driven reporting, dashboard development, data integrity monitoring, and ROI forecasting to extract valuable insights from marketing data and drive strategic decision-making.
 
+### What this project demonstrates?
+
+* Actionable analytics: Clear funnel and ROI/ROAS insights that translate into concrete recommendations for marketing and product teams.
+* Cohort retention: D1/D7 cohort analysis by acquisition channel and platform, highlighting where to invest or iterate on creatives/targeting.
+* Forecasting/modeling: A small but production-minded forecasting or churn prototype to illustrate predictive capability.
+* Reporting craft: Reproducible SQL, cleaned notebooks, and exportable figures suitable for dashboards and executive communication.
+
+### Data & Scope
+
+* Dataset: Cookie Cats (Kaggle) user-level/mobile game telemetry, enriched with synthetic user acquisition attributes (e.g., acquisition_channel, CAC/ad spend, revenue fields) to enable ROI/ROAS analysis.
+* KPIs: D1/D7 retention, conversion funnel step rates, ROI/ROAS by channel, ARPDAU/Revenue trends (optional), and a focused prediction target (e.g., D7 or revenue proxy).
+* Decisions supported: Budget reallocation across channels, creative/testing priorities, onboarding/FTUE optimizations, and retention-oriented product bets.
 --------
