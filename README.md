@@ -20,4 +20,226 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 * Dataset: Cookie Cats (Kaggle) user-level/mobile game telemetry, enriched with synthetic user acquisition attributes (e.g., acquisition_channel, CAC/ad spend, revenue fields) to enable ROI/ROAS analysis.
 * KPIs: D1/D7 retention, conversion funnel step rates, ROI/ROAS by channel, ARPDAU/Revenue trends (optional), and a focused prediction target (e.g., D7 or revenue proxy).
 * Decisions supported: Budget reallocation across channels, creative/testing priorities, onboarding/FTUE optimizations, and retention-oriented product bets.
+
+### Deliverables
+
+#### Notebooks
+
+* 0.9-SQL-Validation-and-Samples.ipynb → sql_analysis.ipynb
+    * Runs 3 canonical queries (daily installs, funnel step rates, ROI/ROAS) and validates notebook vs. SQL outputs.
+
+* 1.0-EDA-and-Funnel.ipynb → eda.ipynb
+    * Defines the funnel (install → onboarding → D1 → purchase), produces the first KPI table and a funnel chart.
+
+* 2.0-ROI-and-ROAS-by-Channel.ipynb → roas_analysis.ipynb
+    * Computes ROI/ROAS by acquisition channel (+optional platform), exports ranked tables and visuals, ends with 3 actionable recommendations.
+
+* 2.1-Retention-Cohorts.ipynb → retention_cohort.ipynb
+    * D1/D7 cohort heatmaps and top/bottom channel lists, with short commentary on implications.
+
+* 3.0-Forecast-or-Churn.ipynb (new, compact)
+    * Option A: Revenue/ARPDAU forecasting (Prophet/SARIMAX) with backtests (SMAPE/MAPE).
+    * Option B: Churn classification (LogReg + XGBoost/LightGBM) with AUC/PR-AUC, calibration, and Top-K lift.
+
 --------
+
+## Usage & Reproducibility
+
+This section explains **how to run the project end‑to‑end**, how SQL/Notebooks are wired, and where artifacts are exported. It is written to be **copy‑paste runnable** on a fresh machine.
+
+---
+
+### Prerequisites
+
+* Python **3.10+**
+* `pip` (or `pipx` if preferred)
+* Git
+* (Optional) **DuckDB** is installed via `requirements.txt` and used to run SQL over CSV/Parquet without a DB server.
+
+---
+
+### Quickstart
+
+**Create and activate a virtual environment**
+
+```bash
+# macOS/Linux
+python -m venv .venv && source .venv/bin/activate
+
+# Windows (PowerShell)
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+```
+
+**Install dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### Project Layout (runnable paths)
+
+```
+mobile_game_analytics_pipeline/   # checks, features, modeling helpers
+notebooks/                        # 0.9 (SQL) • 1.0 (EDA/Funnel) • 2.0 (ROI/ROAS) • 2.1 (Cohorts) • 3.0 (Forecast/Churn)
+references/sql/                   # canonical SQL files: daily_installs, funnel_step_rates, roi_by_channel
+reports/                          # figures/, tables/, executive_summary.md
+data/
+  ├─ raw/
+  ├─ interim/
+  └─ processed/                  # e.g., clean_data.csv or events.parquet
+```
+
+---
+
+### Data Inputs
+
+* Primary input: `data/processed/clean_data.csv` (or `data/processed/events.parquet`).
+* Notebook 0.9 (SQL) automatically **creates a DuckDB view `events`** from one of these files.
+* If neither file is present, notebooks will raise a clear error.
+
+---
+
+### Running Order
+
+Run notebooks **top‑down** in this order:
+
+1. **`0.9-SQL-Validation-and-Samples.ipynb`**
+   Loads SQL from `references/sql/` and executes via DuckDB. Exports validation tables to `reports/tables/`.
+
+2. **`1.0-EDA-and-Funnel.ipynb`**
+   Defines the funnel and exports `funnel.csv` and `funnel.png`.
+
+3. **`2.0-ROI-and-ROAS-by-Channel.ipynb`**
+   Computes ROI/ROAS by channel; exports `roi_by_channel.csv` and `roi_by_channel.png`.
+
+4. **`2.1-Retention-Cohorts.ipynb`**
+   Produces D1/D7 cohort heatmaps; exports `retention_by_channel.csv` and `retention_heatmap.png`.
+
+5. **`3.0-Forecast-or-Churn.ipynb`**
+   Either forecasting (e.g., Prophet/SARIMAX) or churn classification (LogReg + XGBoost/LightGBM). Exports `model_metrics.json` and one key figure (`forecast_plot.png` or `roc_pr_curves.png`).
+
+---
+
+### SQL Usage (Externalized & Reused)
+
+SQL is stored in **`references/sql/`** and loaded from notebooks at runtime.
+
+* `references/sql/daily_installs.sql`
+* `references/sql/funnel_step_rates.sql`
+* `references/sql/roi_by_channel.sql`
+
+---
+
+### Exports (Artifacts)
+
+All notebooks **export tables and figures** to a consistent location:
+
+* **Tables:** `reports/tables/`
+  * `funnel.csv`, `roi_by_channel.csv`, `retention_by_channel.csv`, `backtest_scores.csv`, `model_metrics.json`
+
+* **Figures:** `reports/figures/`
+  * `funnel.png`, `roi_by_channel.png`, `retention_heatmap.png`, `forecast_plot.png` or `roc_pr_curves.png`
+
+* **Summary:** `reports/executive_summary.md` (curated manually from notebook findings)
+
+---
+
+### Data Quality Checks (Optional but Recommended)
+
+In here you must run test_synthetic.py in order to make sure quality of the clean_data
+---
+
+### Reproducibility Notes
+
+* **Determinism:** set seeds for model training and sampling (e.g., `numpy`, `random`, model libraries).
+* **No Leakage:** split by **time** for validation (rolling or holdout) and build features only from the past window.
+* **Versioning:** tag releases when major deliverables change (e.g., `v0.1` MVP, `v0.2` cohorts deep dive, `v0.3` modeling).
+* **Environment:** keep `requirements.txt` up to date; pin critical libs if needed for a clean re‑run.
+
+---
+
+## Part 3 — Results, Visuals & Next Steps
+
+This section summarizes key insights, embeds exported figures, and outlines limitations and next actions. Replace the placeholder metrics below once the latest notebooks are executed.
+
+---
+
+### Results Overview (Key Findings)
+
+**Acquisition & Funnel**
+
+* *Conversion funnel:* Install → Onboarding → D1 return → Purchase. Current run shows:
+
+  * **Install → Onboarding:** ~`X%` (baseline FTUE completion)
+  * **Onboarding → D1:** ~`Y%` (early retention health)
+  * **D1 → Purchase:** ~`Z%` (monetization gate)
+* *Action:* Focus UX experiments on the largest drop (e.g., onboarding), and validate with an A/B test.
+
+**ROI/ROAS by Channel**
+
+* **Top channels:** `Instagram` / `Organic` (example) with **ROAS ≈ `1.xx`**, **ROI ≈ `+yy%`**.
+* **Underperformers:** `TikTok` (example) with **ROAS ≈ `0.xx`** (below break‑even).
+* *Action:* Reallocate **+10–20% UA budget** to top channels; test creative iteration for low‑ROAS channels before further spend.
+
+**Retention Cohorts (D1/D7)**
+
+* **D1 retention:** median ≈ `a%`, best channel ≈ `a+Δ%`.
+* **D7 retention:** median ≈ `b%`, best channel ≈ `b+Δ%`.
+* *Action:* Prioritize **best‑quality sources** (high D7) for long‑term value; refine onboarding for channels with high D1 but weak D7.
+
+**Prediction/Forecast (optional path)**
+
+* **Churn model (if chosen):** AUC ≈ `0.7x`, PR‑AUC ≈ `0.3x`, calibrated. Top‑10% risk decile captures `k×` base churn.
+
+  * *Action:* Targeted retention push for the top deciles (e.g., promos, reminders).
+* **Revenue forecast (if chosen):** SMAPE ≈ `s%` across rolling backtests; trend + weekly seasonality visible.
+
+  * *Action:* Align UA pacing and creative cycles with forecasted peaks.
+
+> Record the finalized numbers in `reports/executive_summary.md` as a single‑page narrative for reviewers.
+
+---
+
+### Visuals (Exported Artifacts)
+
+> All figures are generated by notebooks and exported under `reports/figures/`. Update after re‑running notebooks.
+
+* **Funnel**
+  `![Funnel](reports/figures/funnel.png)`
+
+* **ROI by Channel**
+  `![ROI by Channel](reports/figures/roi_by_channel.png)`
+
+* **Retention Cohort Heatmap (D1/D7)**
+  `![Retention Cohort Heatmap](reports/figures/retention_heatmap.png)`
+
+* **Modeling / Forecasting**
+  `![Churn ROC/PR](reports/figures/roc_pr_curves.png)`  *or*  `![Forecast](reports/figures/forecast_plot.png)`
+
+---
+
+### Dashboard (Tableau)
+
+* **Recommended tabs:** Funnel • ROI/ROAS • Retention (D1/D7) • Churn/Forecast
+* **Export:** Add 2–3 screenshots to `reports/figures/` using the pattern `dashboard_funnel.png`, `dashboard_retention.png`, `dashboard_roi.png`, `dashboard_modeling.png`.
+* **(If published)** Include a share link here once available.
+
+---
+
+### Limitations & Assumptions
+
+* **Synthetic enrichment:** User acquisition fields (e.g., `acquisition_channel`, CAC/ad spend) are enriched and may not reflect production distributions.
+* **Schema/coverage:** Missing events or short time windows can bias retention and ROI estimates; metrics are indicative.
+* **Attribution simplification:** Channel attribution is 1‑touch in this demo; multi‑touch or MMM would alter ROI interpretation.
+* **Model scope:** Forecasts/classifiers are compact prototypes (no hyper‑intensive tuning). Calibration and backtesting are included to keep results honest.
+
+---
+
+### License & Credits
+
+* Code is released under **MIT License** (see `LICENSE`).
+* Dataset: Cookie Cats (Kaggle) — used here for educational/demo purposes with synthetic UA enrichment.
+
+---
