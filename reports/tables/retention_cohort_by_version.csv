@@ -1,9 +1,0 @@
-version,acquisition_channel,users,d1_rate,d7_rate
-gate_30,Facebook,13288,0.452288,0.330975
-gate_30,Instagram,17960,0.466704,0.339866
-gate_30,Organic,4572,0.477034,0.358268
-gate_30,TikTok,8880,0.447297,0.32455
-gate_40,Facebook,13488,0.445655,0.32325
-gate_40,Instagram,18321,0.453141,0.335571
-gate_40,Organic,4581,0.476315,0.345558
-gate_40,TikTok,9099,0.43785,0.320365

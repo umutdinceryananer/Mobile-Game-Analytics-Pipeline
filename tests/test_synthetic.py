@@ -4,10 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# ---- Config (tek noktadan değiştir) ----
-# User-level dataset columns you actually have:
 REQUIRED_COLS = {
-    "userid",  # NOTE: user_id değil
+    "userid",
     "version",
     "session_count",
     "retention_1",
@@ -27,12 +25,11 @@ TARGET_COUNTRY_SHARES = {"USA": 0.7727, "Mexico": 0.1364, "Brazil": 0.0909}
 TARGET_PLATFORM_SHARES = {"App Store": 0.25, "Google Play": 0.75}
 PLATFORM_REVENUE_SHARE = {"App Store": 0.7429, "Google Play": 0.2571}
 
-TOL = 0.02  # makul tolerans
+TOL = 0.02
 
 
 @pytest.fixture(scope="module")
 def df():
-    # Tercihen Parquet (hızlı/şemasal), yoksa CSV fallback
     try:
         return pd.read_parquet("data/processed/events.parquet")
     except Exception:
@@ -85,13 +82,8 @@ def test_platform_revenue_share(df):
 
 
 def test_user_level_roi_formula(df):
-    """
-    User-level ROI genellikle (revenue - CAC) / CAC şeklindedir.
-    (Toplam ROI için: sum(revenue) ve sum(CAC) ile aynı formül.)
-    """
     denom = df["CAC"].replace(0, np.nan)
     roi_calc = (df["revenue"] - df["CAC"]) / denom
-    # Yalnızca tanımlı (CAC>0) gözlemlerle karşılaştır
     mask = denom.notna() & df["ROI"].notna()
     diff = (df.loc[mask, "ROI"] - roi_calc[mask]).abs()
     assert diff.fillna(0).lt(1e-6).all(), "ROI formula mismatch beyond tolerance"
@@ -99,5 +91,4 @@ def test_user_level_roi_formula(df):
 
 @pytest.mark.skip(reason="User-level schema; enable when event-level available.")
 def test_event_date_dtype_and_range(df):
-    # Eğer ileride event-level veriye geçersen bu testi aktif edersin.
     assert "event_date" in df.columns and "event_name" in df.columns

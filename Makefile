@@ -18,50 +18,34 @@ requirements:
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 
-
-
-## Delete all compiled Python files
-.PHONY: clean
-clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
-
-
-## Lint using ruff (use `make format` to do formatting)
-.PHONY: lint
-lint:
-	ruff format --check
-	ruff check
-
-## Format source code with ruff
-.PHONY: format
-format:
-	ruff check --fix
-	ruff format
-
-
-
-
-
-## Set up Python interpreter environment
-.PHONY: create_environment
-create_environment:
-	@bash -c "if [ ! -z `which virtualenvwrapper.sh` ]; then source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); else mkvirtualenv.bat $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); fi"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
-
-
-
-
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
 
 
-## Make dataset
+## Rebuild synthetic dataset (clean_data.csv, events.parquet)
 .PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) mobile_game_analytics_pipeline/dataset.py
+data:
+	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.dataset
 
+## Generate feature and label tables for modeling
+.PHONY: features
+features:
+	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.features
+
+## Train churn model and persist artefacts
+.PHONY: train
+train:
+	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.modeling.train
+
+## Produce churn predictions using latest model
+.PHONY: predict
+predict:
+	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.modeling.predict
+
+## Run full pipeline (data -> features -> train)
+.PHONY: pipeline
+pipeline: data features train
 
 #################################################################################
 # Self Documenting Commands                                                     #
