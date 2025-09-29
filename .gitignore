@@ -2,11 +2,19 @@
 # Ignore everything under data/
 data/*
 
-# But keep pipeline code and configs
+# But keep pipeline code, configs, and placeholder directories
 !data/make_dataset.py
 !data/config/
+!data/raw/
+!data/processed/
 
-# Still ignore raw/processed/interim/external
+# Ignore generated contents but keep directory placeholders
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Still ignore interim/external
 data/interim/
 data/external/
 

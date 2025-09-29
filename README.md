@@ -79,13 +79,6 @@ python -m venv .venv && source .venv/bin/activate
 # Windows (PowerShell)
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
 ```
-
-**Install dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
 ---
 
 
@@ -260,7 +253,7 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 * **D7 retention:** ~`33.3%` of installs return on day 7, and `Organic` keeps ~`73.8%` of its D1 returners through D7.
 * *Action:* Prioritize **best-quality sources** (high D7) for long-term value; refine onboarding for channels with high D1 but weak D7.
 
-**Prediction/Forecast **
+* **Prediction/Forecast **
 
 *Churn model (LogReg + XGBoost):* ROC-AUC  `0.607`, PR-AUC  `0.580`, accuracy  `0.602`; top 10% risk bucket captures ~`78%` of churn (lift  `1.17`).
 *Key segments:* Highest churn risk clusters in `Facebook` and `TikTok` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
