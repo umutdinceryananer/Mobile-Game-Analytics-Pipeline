@@ -1,4 +1,4 @@
-# Mobile Game Analytics Pipeline
+﻿# Mobile Game Analytics Pipeline
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
@@ -246,82 +246,11 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 ---
 
 ### Dashboard (Tableau)
+* [**Tableau Link**](https://public.tableau.com/views/MobileGameUAStory/TableauStory?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)
 
-* **Recommended tabs:** Funnel - ROI/ROAS - Retention (D1/D7) - Churn/Forecast
-* **Export:** Add 2-3 screenshots to `reports/figures/` using the pattern `dashboard_funnel.png`, `dashboard_retention.png`, `dashboard_roi.png`, `dashboard_modeling.png`.
-* **(If published)** Include a share link here once available.
-
-#### Performance Overview
-
-<div class='tableauPlaceholder' id='viz1759097764622' style='position: relative'><noscript><a href='#'><img alt='Mobile Game UA Performance Overview' src='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceOverview/Dashboard1/1.png' style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
-  <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
-  <param name='embed_code_version' value='3' />
-  <param name='site_root' value='' />
-  <param name='name' value='MobileGameUAPerformanceOverview/Dashboard1' />
-  <param name='tabs' value='no' />
-  <param name='toolbar' value='yes' />
-  <param name='static_image' value='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceOverview/Dashboard1/1.png' />
-  <param name='animate_transition' value='yes' />
-  <param name='display_static_image' value='yes' />
-  <param name='display_spinner' value='yes' />
-  <param name='display_overlay' value='yes' />
-  <param name='display_count' value='yes' />
-  <param name='language' value='en-US' />
-  <param name='filter' value='publish=yes' />
-</object></div>
-<script type='text/javascript'>
-  var divElement = document.getElementById('viz1759097764622');
-  var vizElement = divElement.getElementsByTagName('object')[0];
-  if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1300px';vizElement.style.height='927px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1300px';vizElement.style.height='927px';} else { vizElement.style.width='100%';vizElement.style.height='1777px';}
-  var scriptElement = document.createElement('script');
-  scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-  vizElement.parentNode.insertBefore(scriptElement, vizElement);
-</script>
-
-#### Churn Model Dashboard
-
-<div class='tableauPlaceholder' id='viz1759149188351' style='position: relative'><noscript><a href='#'><img alt='Model Dashboard ' src='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceModelDashboard/ModelDashboard/1.png' style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
-  <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
-  <param name='embed_code_version' value='3' />
-  <param name='site_root' value='' />
-  <param name='name' value='MobileGameUAPerformanceModelDashboard/ModelDashboard' />
-  <param name='tabs' value='no' />
-  <param name='toolbar' value='yes' />
-  <param name='static_image' value='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceModelDashboard/ModelDashboard/1.png' />
-  <param name='animate_transition' value='yes' />
-  <param name='display_static_image' value='yes' />
-  <param name='display_spinner' value='yes' />
-  <param name='display_overlay' value='yes' />
-  <param name='display_count' value='yes' />
-  <param name='language' value='en-US' />
-  <param name='filter' value='publish=yes' />
-</object></div>
-<script type='text/javascript'>
-  var divElementModel = document.getElementById('viz1759149188351');
-  var vizElementModel = divElementModel.getElementsByTagName('object')[0];
-  if (divElementModel.offsetWidth > 800) {
-    vizElementModel.style.minWidth='420px';
-    vizElementModel.style.maxWidth='650px';
-    vizElementModel.style.width='100%';
-    vizElementModel.style.minHeight='187px';
-    vizElementModel.style.maxHeight='587px';
-    vizElementModel.style.height=(divElementModel.offsetWidth*0.75)+'px';
-  } else if (divElementModel.offsetWidth > 500) {
-    vizElementModel.style.minWidth='420px';
-    vizElementModel.style.maxWidth='650px';
-    vizElementModel.style.width='100%';
-    vizElementModel.style.minHeight='187px';
-    vizElementModel.style.maxHeight='587px';
-    vizElementModel.style.height=(divElementModel.offsetWidth*0.75)+'px';
-  } else {
-    vizElementModel.style.width='100%';
-    vizElementModel.style.height='727px';
-  }
-  var scriptElementModel = document.createElement('script');
-  scriptElementModel.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-  vizElementModel.parentNode.insertBefore(scriptElementModel, vizElementModel);
-</script>
-
+<img width="1415" height="1063" alt="Tableau Story Part 1" src="https://github.com/user-attachments/assets/61a34373-ea43-46af-ba2c-79cc4bfa10c5" />
+<img width="1415" height="1063" alt="Tableau Story Part 2" src="https://github.com/user-attachments/assets/5ab6fbba-b391-47a5-9d66-a86f7545c683" />
+<img width="1776" height="725" alt="roc_pr_curves" src="https://github.com/user-attachments/assets/82a20060-f8e4-43e3-8bf9-9cf4b86e6dee" />
 ---
 
 ### Limitations & Assumptions
