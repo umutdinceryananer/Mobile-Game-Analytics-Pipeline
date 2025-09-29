@@ -174,3 +174,16 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Analytics outputs
+reports/tables/
+reports/figures/
+
+# Model artefacts
+models/
+
+
+# Keep directory placeholders for ignored outputs
+!reports/tables/.gitkeep
+!reports/figures/.gitkeep
+!models/.gitkeep
