@@ -9,6 +9,7 @@ ASCII_PATH = PROJ_ROOT / "docs" / "docs" / "greetings.txt"
 
 
 NEXT_STEPS = [
+    ("Trigger complete pipeline (If you have make package)","make pipeline"),
     ("Rebuild synthetic dataset", "python -m mobile_game_analytics_pipeline.dataset"),
     ("Generate analytics tables & figures", "python -m mobile_game_analytics_pipeline.analytics"),
     ("Create feature set", "python -m mobile_game_analytics_pipeline.features"),
