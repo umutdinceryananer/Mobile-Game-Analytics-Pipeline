@@ -172,26 +172,26 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 * *Conversion funnel:* Install -> Onboarding -> D1 return -> Purchase. Current run shows:
   * **Install -> Onboarding:** ~`95.6%` (baseline FTUE completion)
-  * **Onboarding -> D1:** ~`46.6%` (early retention health)
-  * **D1 -> Purchase:** ~`12.5%` (monetization gate)
+  * **Onboarding -> D1:** ~`47.6%` (early retention health)
+  * **D1 -> Purchase:** ~`16.8%` (monetization gate)
 * *Action:* Focus UX experiments on the largest drop (e.g., onboarding), and validate with an A/B test.
 
 **ROI/ROAS by Channel**
 
-* **Top channel:** `Organic` delivers **ROAS ~`4.03`**, **ROI ~`+303%`**, and is the only source above break-even.
-* **Underperformers:** Paid UA (e.g., `TikTok` ROAS ~`0.76`, `Instagram` ROAS ~`0.51`) remains below break-even.
+* **Top channel:** `Organic` delivers **ROAS ~`1.85`**, **ROI ~`+85%`**, and is the only source above break-even.
+* **Underperformers:** Paid UA (e.g., `TikTok` ROAS ~`0.34`, `Instagram` ROAS ~`0.23`, `Facebook` ROAS ~`0.19`) remains below break-even.
 * *Action:* Reallocate **+10-20% UA budget** to top channels; test creative iteration for low-ROAS channels before further spend.
 
 **Retention Cohorts (D1/D7)**
 
-* **D1 retention:** overall average ~`44.5%`; `Instagram` leads at ~`44.9%`.
-* **D7 retention:** ~`18.6%` of installs return on day 7, and `Organic` keeps ~`42.1%` of its D1 returners through D7.
+* **D1 retention:** overall average ~`45.5%`; `Organic` leads at ~`47.7%`.
+* **D7 retention:** ~`33.3%` of installs return on day 7, and `Organic` keeps ~`73.8%` of its D1 returners through D7.
 * *Action:* Prioritize **best-quality sources** (high D7) for long-term value; refine onboarding for channels with high D1 but weak D7.
 
 **Prediction/Forecast (optional path)**
 
-*Churn model (LogReg + XGBoost):* ROC-AUC ≈ `0.889`, PR-AUC ≈ `0.968`, accuracy ≈ `0.874`; top 10% risk bucket captures ~`99%` of churn (lift ≈ `1.22×`).
-*Key segments:* Highest churn risk clusters in `Facebook`/`Instagram` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
+*Churn model (LogReg + XGBoost):* ROC-AUC ≈ `0.607`, PR-AUC ≈ `0.580`, accuracy ≈ `0.602`; top 10% risk bucket captures ~`78%` of churn (lift ≈ `1.17×`).
+*Key segments:* Highest churn risk clusters in `Facebook` and `TikTok` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
 *Artifacts:* `reports/tables/backtest_scores.csv`, `reports/tables/model_metrics.json`, `reports/tables/churn_risk_segments.csv`, `reports/figures/roc_pr_curves.png`.
 
 > Scores are measured on the synthetic demo dataset; expect lower performance on production data.

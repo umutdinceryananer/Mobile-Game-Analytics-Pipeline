@@ -1,35 +1,80 @@
-# Source of Truth
-
 seed: 42
-
 acquisition_channel:
-  labels: ["Instagram", "Facebook", "TikTok", "Organic"]
-  probs:  [0.40,      0.30,         0.20,     0.10]
-  assign_mode: "hash"  # "hash" | "random"
-
+  labels:
+  - Instagram
+  - Facebook
+  - TikTok
+  - Organic
+  probs:
+  - 0.4
+  - 0.3
+  - 0.2
+  - 0.1
+  assign_mode: hash
 cac:
   Instagram: 2.3
   Facebook: 2.8
   TikTok: 1.7
   Organic: 0.3
-
 revenue:
-  iap_gamma_shape: 2.2
-  iap_gamma_scale: 8.0
-  ad_revenue_per_session: 0.08
+  iap_gamma_shape: 1.6
+  iap_gamma_scale: 4.5
+  ad_revenue_per_session: 0.05
   use_user_seed: true
-
 geo:
   country:
-    labels: ["USA", "Mexico", "Brazil"]
-    probs:  [0.772727, 0.136364, 0.090909]
-    assign_mode: "hash"
-
+    labels:
+    - USA
+    - Mexico
+    - Brazil
+    probs:
+    - 0.772727
+    - 0.136364
+    - 0.090909
+    assign_mode: hash
 platform:
-  labels: ["App Store", "Google Play"]
-  probs:  [0.25, 0.75]
-  assign_mode: "hash"
-
+  labels:
+  - App Store
+  - Google Play
+  probs:
+  - 0.25
+  - 0.75
+  assign_mode: hash
   revenue_target_shares:
-    "App Store": 0.742857
-    "Google Play": 0.257143
+    App Store: 0.742857
+    Google Play: 0.257143
+retention:
+  d1:
+    logit_intercept: -0.8
+    session_log1p_weight: 0.2
+    purchase_weight: 0.8
+    channel_lift:
+      Organic: 0.12
+      Instagram: 0.04
+      Facebook: -0.02
+      TikTok: -0.04
+    platform_lift:
+      App Store: 0.04
+      Google Play: -0.02
+    version_lift:
+      gate_30: 0.02
+      gate_40: -0.02
+    noise_std: 0.12
+    min_rate: 0.2
+    max_rate: 0.65
+  d7:
+    logit_intercept: -1.3
+    d1_weight: 0.9
+    session_log1p_weight: 0.06
+    revenue_log1p_weight: 0.03
+    channel_lift:
+      Organic: 0.08
+      Instagram: 0.02
+      Facebook: -0.03
+      TikTok: -0.05
+    platform_lift:
+      App Store: 0.025
+      Google Play: -0.02
+    noise_std: 0.18
+    min_rate: 0.05
+    max_rate: 0.55

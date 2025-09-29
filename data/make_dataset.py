@@ -78,6 +78,83 @@ def _assign_categorical(
     return assigned.astype(str).str.strip()
 
 
+def _sigmoid(x: np.ndarray | float) -> np.ndarray | float:
+    return 1.0 / (1.0 + np.exp(-x))
+
+
+def _lift_from_mapping(series: pd.Series, mapping: dict | None) -> np.ndarray:
+    if not mapping:
+        return np.zeros(len(series), dtype=float)
+    return series.map(mapping).fillna(0.0).to_numpy(dtype=float)
+
+
+def _apply_retention_enrichment(
+    df: pd.DataFrame, cfg: dict, rng: np.random.Generator
+) -> pd.DataFrame:
+    # Generate retention_1 and retention_7 flags using logistic-style models.
+    d1_cfg = cfg.get("d1") or {}
+    d7_cfg = cfg.get("d7") or {}
+
+    if d1_cfg:
+        log_sessions = np.log1p(df["session_count"].fillna(0).astype(float))
+        purchase = df.get("purchase", pd.Series(0, index=df.index)).astype(float)
+
+        logit = float(d1_cfg.get("logit_intercept", -0.5))
+        logit += float(d1_cfg.get("session_log1p_weight", 0.2)) * log_sessions
+        logit += float(d1_cfg.get("purchase_weight", 0.8)) * purchase
+        logit += _lift_from_mapping(
+            df["acquisition_channel"], d1_cfg.get("channel_lift")
+        )
+        logit += _lift_from_mapping(df["platform"], d1_cfg.get("platform_lift"))
+        if "version" in df.columns:
+            logit += _lift_from_mapping(df["version"], d1_cfg.get("version_lift"))
+
+        noise_std = float(d1_cfg.get("noise_std", 0.0))
+        if noise_std > 0:
+            logit += rng.normal(0.0, noise_std, size=len(df))
+
+        prob = _sigmoid(logit)
+        prob = np.clip(
+            prob,
+            float(d1_cfg.get("min_rate", 0.05)),
+            float(d1_cfg.get("max_rate", 0.95)),
+        )
+        df["retention_1"] = rng.binomial(1, prob, size=len(df))
+
+    if d7_cfg:
+        if "retention_1" not in df.columns:
+            raise ValueError("retention_1 column required before computing retention_7")
+
+        log_sessions = np.log1p(df["session_count"].fillna(0).astype(float))
+        log_revenue = np.log1p(df.get("revenue", 0).clip(lower=0).astype(float))
+        d1_values = df["retention_1"].astype(float)
+
+        logit = float(d7_cfg.get("logit_intercept", -1.0))
+        logit += float(d7_cfg.get("d1_weight", 1.0)) * d1_values
+        logit += float(d7_cfg.get("session_log1p_weight", 0.1)) * log_sessions
+        logit += float(d7_cfg.get("revenue_log1p_weight", 0.05)) * log_revenue
+        logit += _lift_from_mapping(
+            df["acquisition_channel"], d7_cfg.get("channel_lift")
+        )
+        logit += _lift_from_mapping(df["platform"], d7_cfg.get("platform_lift"))
+        if "version" in df.columns:
+            logit += _lift_from_mapping(df["version"], d7_cfg.get("version_lift"))
+
+        noise_std = float(d7_cfg.get("noise_std", 0.0))
+        if noise_std > 0:
+            logit += rng.normal(0.0, noise_std, size=len(df))
+
+        prob = _sigmoid(logit)
+        prob = np.clip(
+            prob,
+            float(d7_cfg.get("min_rate", 0.02)),
+            float(d7_cfg.get("max_rate", 0.8)),
+        )
+        df["retention_7"] = rng.binomial(1, prob, size=len(df))
+
+    return df
+
+
 def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """
     Adds acquisition_channel, CAC, revenue, ROI, country, and platform columns in a
@@ -309,6 +386,10 @@ def add_synthetic_columns(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     if normalized_platform_weights:
         multipliers = df["platform"].map(normalized_platform_weights).astype(float)
         df["revenue"] = df["revenue"] * multipliers
+
+    retention_cfg = cfg.get("retention")
+    if retention_cfg:
+        df = _apply_retention_enrichment(df, retention_cfg, rng)
 
     # -----------------------------
     # 4) ROI (safe division)
