@@ -190,10 +190,11 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 **Prediction/Forecast (optional path)**
 
-*Pending build:* select either churn modeling (LogReg + XGBoost baseline) or revenue forecasting (Prophet/SARIMAX).
-*Action once ready:* capture AUC/PRAUC or SMAPE metrics, export figures, and summarize in `reports/executive_summary.md`.
+*Churn model (LogReg + XGBoost):* ROC-AUC ≈ `0.889`, PR-AUC ≈ `0.968`, accuracy ≈ `0.874`; top 10% risk bucket captures ~`99%` of churn (lift ≈ `1.22×`).
+*Key segments:* Highest churn risk clusters in `Facebook`/`Instagram` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
+*Artifacts:* `reports/tables/backtest_scores.csv`, `reports/tables/model_metrics.json`, `reports/tables/churn_risk_segments.csv`, `reports/figures/roc_pr_curves.png`.
 
-  * *Action:* Align UA pacing and creative cycles with forecasted peaks.
+> Scores are measured on the synthetic demo dataset; expect lower performance on production data.
 
 > Record the finalized numbers in `reports/executive_summary.md` as a single‑page narrative for reviewers.
 

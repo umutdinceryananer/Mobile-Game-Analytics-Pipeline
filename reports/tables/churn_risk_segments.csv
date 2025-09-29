@@ -1,0 +1,9 @@
+acquisition_channel,platform,n_users,avg_churn_prob,median_churn_prob
+TikTok,App Store,1366,0.82683915,0.9408859
+Facebook,App Store,2028,0.8200019,0.93225247
+Organic,App Store,642,0.8161818,0.93816364
+Facebook,Google Play,6014,0.8148838,0.9247087
+Instagram,Google Play,8345,0.81222624,0.92108494
+TikTok,Google Play,4019,0.8099098,0.9149838
+Instagram,App Store,2687,0.80959475,0.93255216
+Organic,Google Play,1956,0.8073947,0.9226647
