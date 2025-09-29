@@ -17,11 +17,9 @@ requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
-
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
-
 
 ## Rebuild synthetic dataset (clean_data.csv, events.parquet)
 .PHONY: data
@@ -33,6 +31,11 @@ data:
 features:
 	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.features
 
+## Generate analytics tables (funnel, ROI, retention)
+.PHONY: analytics
+analytics:
+	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.analytics
+
 ## Train churn model and persist artefacts
 .PHONY: train
 train:
@@ -43,9 +46,9 @@ train:
 predict:
 	$(PYTHON_INTERPRETER) -m mobile_game_analytics_pipeline.modeling.predict
 
-## Run full pipeline (data -> features -> train)
+## Run full pipeline (data -> features -> analytics -> train)
 .PHONY: pipeline
-pipeline: data features train
+pipeline: data features analytics train
 
 #################################################################################
 # Self Documenting Commands                                                     #

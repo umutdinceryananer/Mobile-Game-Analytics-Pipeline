@@ -32,13 +32,13 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 
 #### Notebooks
 
-* 0.9-SQL-Validation-and-Samples.ipynb â†' sql_analysis.ipynb
+* 0.9-SQL-Validation-and-Samples.ipynb -> sql_analysis.ipynb
     * Runs 3 canonical queries (daily installs, funnel step rates, ROI/ROAS) and validates notebook vs. SQL outputs.
 
-* 1.0-EDA-and-Funnel.ipynb â†' eda.ipynb
-    * Defines the funnel (install â†' onboarding â†' D1 â†' purchase), produces the first KPI table and a funnel chart.
+* 1.0-EDA-and-Funnel.ipynb -> eda.ipynb
+    * Defines the funnel (install -> onboarding -> D1 -> purchase), produces the first KPI table and a funnel chart.
 
-* 2.0-ROI-and-ROAS-by-Channel.ipynb â†' roas_analysis.ipynb
+* 2.0-ROI-and-ROAS-by-Channel.ipynb -> roas_analysis.ipynb
     * Computes ROI/ROAS by acquisition channel (+optional platform), exports ranked tables and visuals, ends with 3 actionable recommendations.
 
 * 2.1-Retention-Cohorts.ipynb
@@ -51,7 +51,7 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 
 ## Usage & Reproducibility
 
-This section explains **how to run the project endâ€'toâ€'end**, how SQL/Notebooks are wired, and where artifacts are exported. It is written to be **copyâ€'paste runnable** on a fresh machine.
+This section explains **how to run the project end'to'end**, how SQL/Notebooks are wired, and where artifacts are exported. It is written to be **copy'paste runnable** on a fresh machine.
 
 ---
 
@@ -97,19 +97,56 @@ After installing requirements, you can reproduce the pipeline without opening no
 Shortcut: `make pipeline` runs steps 1-3 sequentially.
 
 Each rule calls `python -m mobile_game_analytics_pipeline.<command>` under the hood, so you can invoke them directly if you prefer finer control over paths.
-> Tip (Windows): if `make` is unavailable, install it via Git Bash (`pacman -S make`) or run the commands manually with `python -m mobile_game_analytics_pipeline.<command>`.
+
+If you dont have make and dont want to install it you can use given commands;
+
+```
+# When Virtual Environment is Active
+python -m mobile_game_analytics_pipeline.dataset
+python -m mobile_game_analytics_pipeline.features
+python -m mobile_game_analytics_pipeline.modeling.train
+python -m mobile_game_analytics_pipeline.modeling.predict  # opsiyonel
+
+```
 
 ### Project Layout (runnable paths)
 
 ```
-mobile_game_analytics_pipeline/   # checks, features, modeling helpers
-notebooks/                        # 0.9 (SQL) â€¢ 1.0 (EDA/Funnel) â€¢ 2.0 (ROI/ROAS) â€¢ 2.1 (Cohorts) â€¢ 3.0 (Forecast/Churn)
-references/sql/                   # canonical SQL files: daily_installs, funnel_step_rates, roi_by_channel
-reports/                          # figures/, tables/, executive_summary.md
-data/
-  â"œâ"€ raw/
-  â"œâ"€ interim/
-  â""â"€ processed/                  # e.g., clean_data.csv or events.parquet
+mobile_game_analytics_pipeline/
+├─ mobile_game_analytics_pipeline/
+│  ├─ __init__.py
+│  ├─ config.py
+│  ├─ dataset.py               # Typer command: rebuild synthetic data
+│  ├─ features.py              # Typer command: create features & labels
+│  ├─ modeling/
+│  │  ├─ __init__.py
+│  │  ├─ train.py              # Typer command: train churn model
+│  │  └─ predict.py            # Typer command: generate predictions
+│  └─ …
+├─ data/
+│  ├─ raw/
+│  │  └─ cookie_cats.csv
+│  ├─ processed/               # clean_data.csv, events.parquet, features.csv, labels.csv
+│  ├─ config/
+│  │  └─ synthetic.yaml
+│  └─ make_dataset.py
+├─ notebooks/
+│  ├─ 0.9-SQL-Validation-and-Samples.ipynb
+│  ├─ 1.0-EDA-and-Funnel.ipynb
+│  ├─ 2.0-ROI-and-ROAS-by-Channel.ipynb
+│  ├─ 2.1-Retention-Cohorts.ipynb
+│  └─ 3.0-Churn-Model.ipynb
+├─ references/
+│  └─ sql/
+├─ reports/
+│  ├─ tables/
+│  ├─ figures/
+│  └─ executive_summary.md
+├─ tests/
+│  └─ test_synthetic.py
+├─ Makefile
+├─ requirements.txt
+└─ README.md
 ```
 
 ---
@@ -124,7 +161,7 @@ data/
 
 ### Running Order
 
-Run notebooks **topâ€'down** in this order:
+Run notebooks **top'down** in this order:
 
 1. **`0.9-SQL-Validation-and-Samples.ipynb`**
    Loads SQL from `references/sql/` and executes via DuckDB. Exports validation tables to `reports/tables/`.
@@ -139,7 +176,7 @@ Run notebooks **topâ€'down** in this order:
    Produces D1/D7 cohort heatmaps; exports `retention_by_channel.csv` and `retention_heatmap.png`.
 
 5. **`3.0-Forecast-or-Churn.ipynb`**
-   Either forecasting (e.g., Prophet/SARIMAX) or churn classification (LogReg + XGBoost/LightGBM). Exports `model_metrics.json` and one key figure (`forecast_plot.png` or `roc_pr_curves.png`).
+   Churn classification (LogReg + XGBoost/LightGBM). Exports `model_metrics.json` and one key figure (`roc_pr_curves.png`).
 
 ---
 
@@ -183,11 +220,11 @@ pytest -q
 * **Determinism:** set seeds for model training and sampling (e.g., `numpy`, `random`, model libraries).
 * **No Leakage:** split by **time** for validation (rolling or holdout) and build features only from the past window.
 * **Versioning:** tag releases when major deliverables change (e.g., `v0.1` MVP, `v0.2` cohorts deep dive, `v0.3` modeling).
-* **Environment:** keep `requirements.txt` up to date; pin critical libs if needed for a clean reâ€'run.
+* **Environment:** keep `requirements.txt` up to date; pin critical libs if needed for a clean re'run.
 
 ---
 
-## Part 3 â€" Results, Visuals & Next Steps
+## Part 3 " Results, Visuals & Next Steps
 
 This section summarizes key insights, embeds exported figures, and outlines limitations and next actions. Replace the placeholder metrics below once the latest notebooks are executed.
 
@@ -217,19 +254,19 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 **Prediction/Forecast (optional path)**
 
-*Churn model (LogReg + XGBoost):* ROC-AUC â‰ˆ `0.607`, PR-AUC â‰ˆ `0.580`, accuracy â‰ˆ `0.602`; top 10% risk bucket captures ~`78%` of churn (lift â‰ˆ `1.17Ã—`).
+*Churn model (LogReg + XGBoost):* ROC-AUC  `0.607`, PR-AUC  `0.580`, accuracy  `0.602`; top 10% risk bucket captures ~`78%` of churn (lift  `1.17`).
 *Key segments:* Highest churn risk clusters in `Facebook` and `TikTok` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
 *Artifacts:* `reports/tables/backtest_scores.csv`, `reports/tables/model_metrics.json`, `reports/tables/churn_risk_segments.csv`, `reports/figures/roc_pr_curves.png`.
 
 > Scores are measured on the synthetic demo dataset; expect lower performance on production data.
 
-> Record the finalized numbers in `reports/executive_summary.md` as a singleâ€'page narrative for reviewers.
+> Record the finalized numbers in `reports/executive_summary.md` as a single'page narrative for reviewers.
 
 ---
 
 ### Visuals (Exported Artifacts)
 
-> All figures are generated by notebooks and exported under `reports/figures/`. Update after reâ€'running notebooks.
+> All figures are generated by notebooks and exported under `reports/figures/`. Update after re'running notebooks.
 
 * **Funnel**
   `![Funnel](reports/figures/funnel.png)`
@@ -250,14 +287,12 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 <img width="1415" height="1063" alt="Tableau Story Part 1" src="https://github.com/user-attachments/assets/61a34373-ea43-46af-ba2c-79cc4bfa10c5" />
 <img width="1415" height="1063" alt="Tableau Story Part 2" src="https://github.com/user-attachments/assets/5ab6fbba-b391-47a5-9d66-a86f7545c683" />
-<img width="1776" height="725" alt="roc_pr_curves" src="https://github.com/user-attachments/assets/82a20060-f8e4-43e3-8bf9-9cf4b86e6dee" />
----
 
 ### Limitations & Assumptions
 
 * **Synthetic enrichment:** User acquisition fields (e.g., `acquisition_channel`, CAC/ad spend) are enriched and may not reflect production distributions.
 * **Schema/coverage:** Missing events or short time windows can bias retention and ROI estimates; metrics are indicative.
-* **Attribution simplification:** Channel attribution is 1â€'touch in this demo; multiâ€'touch or MMM would alter ROI interpretation.
+* **Attribution simplification:** Channel attribution is 1'touch in this demo; multi'touch or MMM would alter ROI interpretation.
 * **Model scope:** Forecasts/classifiers are compact prototypes (no hyper-intensive tuning). Calibration and backtesting are included to keep results honest.
 
 ---
@@ -265,6 +300,6 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 ### License & Credits
 
 * Code is released under **MIT License** (see `LICENSE`).
-* Dataset: Cookie Cats (Kaggle) â€" used here for educational/demo purposes with synthetic UA enrichment.
+* Dataset: Cookie Cats (Kaggle) " used here for educational/demo purposes with synthetic UA enrichment.
 
 ---
