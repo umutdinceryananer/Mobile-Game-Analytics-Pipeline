@@ -28,7 +28,7 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 
 ### Data & Scope
 
-* Dataset: Cookie Cats (Kaggle) user-level/mobile game telemetry, enriched with synthetic user acquisition attributes (e.g., acquisition_channel, CAC/ad spend, revenue fields) to enable ROI/ROAS analysis.
+* Dataset: [Cookie Cats (Kaggle)](https://www.kaggle.com/datasets/yufengsui/mobile-games-ab-testing) user-level/mobile game telemetry, enriched with synthetic user acquisition attributes (e.g., acquisition_channel, CAC/ad spend, revenue fields) to enable ROI/ROAS analysis.
 * KPIs: D1/D7 retention, conversion funnel step rates, ROI/ROAS by channel, ARPDAU/Revenue trends (optional), and a focused prediction target (e.g., D7 or revenue proxy).
 * Decisions supported: Budget reallocation across channels, creative/testing priorities, onboarding/FTUE optimizations, and retention-oriented product bets.
 
