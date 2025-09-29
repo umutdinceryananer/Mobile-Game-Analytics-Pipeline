@@ -217,6 +217,10 @@ pytest -q
 * `tests/test_synthetic.py` validates schema, channel/country/platform distributions, ROI formula, and retention ratios for the synthetic dataset.
 * CLI smoke test: `make pipeline` (or run the Typer commands manually) regenerates data, features, and churn model artefacts end-to-end.
 
+#### Enabling Pre-commit Hooks
+
+This repository uses `pre-commit` hooks (formatting, lint checks, etc.). A fresh clone does not include the hook automatically; run the following once after setting up your environment:
+
 ---
 
 ### Reproducibility Notes
