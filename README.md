@@ -1,4 +1,4 @@
-# Mobile Game Analytics Pipeline
+﻿# Mobile Game Analytics Pipeline
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
@@ -25,13 +25,13 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 
 #### Notebooks
 
-* 0.9-SQL-Validation-and-Samples.ipynb → sql_analysis.ipynb
+* 0.9-SQL-Validation-and-Samples.ipynb â†’ sql_analysis.ipynb
     * Runs 3 canonical queries (daily installs, funnel step rates, ROI/ROAS) and validates notebook vs. SQL outputs.
 
-* 1.0-EDA-and-Funnel.ipynb → eda.ipynb
-    * Defines the funnel (install → onboarding → D1 → purchase), produces the first KPI table and a funnel chart.
+* 1.0-EDA-and-Funnel.ipynb â†’ eda.ipynb
+    * Defines the funnel (install â†’ onboarding â†’ D1 â†’ purchase), produces the first KPI table and a funnel chart.
 
-* 2.0-ROI-and-ROAS-by-Channel.ipynb → roas_analysis.ipynb
+* 2.0-ROI-and-ROAS-by-Channel.ipynb â†’ roas_analysis.ipynb
     * Computes ROI/ROAS by acquisition channel (+optional platform), exports ranked tables and visuals, ends with 3 actionable recommendations.
 
 * 2.1-Retention-Cohorts.ipynb
@@ -45,7 +45,7 @@ This repository demonstrates a comprehensive analytics workflow for marketing pe
 
 ## Usage & Reproducibility
 
-This section explains **how to run the project end‑to‑end**, how SQL/Notebooks are wired, and where artifacts are exported. It is written to be **copy‑paste runnable** on a fresh machine.
+This section explains **how to run the project endâ€‘toâ€‘end**, how SQL/Notebooks are wired, and where artifacts are exported. It is written to be **copyâ€‘paste runnable** on a fresh machine.
 
 ---
 
@@ -82,13 +82,13 @@ pip install -r requirements.txt
 
 ```
 mobile_game_analytics_pipeline/   # checks, features, modeling helpers
-notebooks/                        # 0.9 (SQL) • 1.0 (EDA/Funnel) • 2.0 (ROI/ROAS) • 2.1 (Cohorts) • 3.0 (Forecast/Churn)
+notebooks/                        # 0.9 (SQL) â€¢ 1.0 (EDA/Funnel) â€¢ 2.0 (ROI/ROAS) â€¢ 2.1 (Cohorts) â€¢ 3.0 (Forecast/Churn)
 references/sql/                   # canonical SQL files: daily_installs, funnel_step_rates, roi_by_channel
 reports/                          # figures/, tables/, executive_summary.md
 data/
-  ├─ raw/
-  ├─ interim/
-  └─ processed/                  # e.g., clean_data.csv or events.parquet
+  â”œâ”€ raw/
+  â”œâ”€ interim/
+  â””â”€ processed/                  # e.g., clean_data.csv or events.parquet
 ```
 
 ---
@@ -103,7 +103,7 @@ data/
 
 ### Running Order
 
-Run notebooks **top‑down** in this order:
+Run notebooks **topâ€‘down** in this order:
 
 1. **`0.9-SQL-Validation-and-Samples.ipynb`**
    Loads SQL from `references/sql/` and executes via DuckDB. Exports validation tables to `reports/tables/`.
@@ -156,11 +156,11 @@ In here you must run test_synthetic.py in order to make sure quality of the clea
 * **Determinism:** set seeds for model training and sampling (e.g., `numpy`, `random`, model libraries).
 * **No Leakage:** split by **time** for validation (rolling or holdout) and build features only from the past window.
 * **Versioning:** tag releases when major deliverables change (e.g., `v0.1` MVP, `v0.2` cohorts deep dive, `v0.3` modeling).
-* **Environment:** keep `requirements.txt` up to date; pin critical libs if needed for a clean re‑run.
+* **Environment:** keep `requirements.txt` up to date; pin critical libs if needed for a clean reâ€‘run.
 
 ---
 
-## Part 3 — Results, Visuals & Next Steps
+## Part 3 â€” Results, Visuals & Next Steps
 
 This section summarizes key insights, embeds exported figures, and outlines limitations and next actions. Replace the placeholder metrics below once the latest notebooks are executed.
 
@@ -190,19 +190,19 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 **Prediction/Forecast (optional path)**
 
-*Churn model (LogReg + XGBoost):* ROC-AUC ≈ `0.607`, PR-AUC ≈ `0.580`, accuracy ≈ `0.602`; top 10% risk bucket captures ~`78%` of churn (lift ≈ `1.17×`).
+*Churn model (LogReg + XGBoost):* ROC-AUC â‰ˆ `0.607`, PR-AUC â‰ˆ `0.580`, accuracy â‰ˆ `0.602`; top 10% risk bucket captures ~`78%` of churn (lift â‰ˆ `1.17Ã—`).
 *Key segments:* Highest churn risk clusters in `Facebook` and `TikTok` installs on `Google Play`; see `reports/tables/churn_risk_segments.csv` for channel/platform drill-down.
 *Artifacts:* `reports/tables/backtest_scores.csv`, `reports/tables/model_metrics.json`, `reports/tables/churn_risk_segments.csv`, `reports/figures/roc_pr_curves.png`.
 
 > Scores are measured on the synthetic demo dataset; expect lower performance on production data.
 
-> Record the finalized numbers in `reports/executive_summary.md` as a single‑page narrative for reviewers.
+> Record the finalized numbers in `reports/executive_summary.md` as a singleâ€‘page narrative for reviewers.
 
 ---
 
 ### Visuals (Exported Artifacts)
 
-> All figures are generated by notebooks and exported under `reports/figures/`. Update after re‑running notebooks.
+> All figures are generated by notebooks and exported under `reports/figures/`. Update after reâ€‘running notebooks.
 
 * **Funnel**
   `![Funnel](reports/figures/funnel.png)`
@@ -224,14 +224,16 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 * **Export:** Add 2-3 screenshots to `reports/figures/` using the pattern `dashboard_funnel.png`, `dashboard_retention.png`, `dashboard_roi.png`, `dashboard_modeling.png`.
 * **(If published)** Include a share link here once available.
 
-<div class='tableauPlaceholder' id='viz1759097764622' style='position: relative'><noscript><a href='#'><img alt='Mobile Game UA Performance Overview' src='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceOverview/Dashboard1/1.png' style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+<div class='tableauPlaceholder' id='viz1759149670604' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Mo&#47;MobileGameUAPerformanceModelDashboard&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='MobileGameUAPerformanceModelDashboard&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Mo&#47;MobileGameUAPerformanceModelDashboard&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1759149670604');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1300px';vizElement.style.height='927px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1300px';vizElement.style.height='927px';} else { vizElement.style.width='100%';vizElement.style.height='1777px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+
+<div class='tableauPlaceholder' id='viz1759149188351' style='position: relative'><noscript><a href='#'><img alt='Model Dashboard ' src='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceModelDashboard/ModelDashboard/1.png' style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
   <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
   <param name='embed_code_version' value='3' />
   <param name='site_root' value='' />
-  <param name='name' value='MobileGameUAPerformanceOverview/Dashboard1' />
+  <param name='name' value='MobileGameUAPerformanceModelDashboard/ModelDashboard' />
   <param name='tabs' value='no' />
   <param name='toolbar' value='yes' />
-  <param name='static_image' value='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceOverview/Dashboard1/1.png' />
+  <param name='static_image' value='https://public.tableau.com/static/images/Mo/MobileGameUAPerformanceModelDashboard/ModelDashboard/1.png' />
   <param name='animate_transition' value='yes' />
   <param name='display_static_image' value='yes' />
   <param name='display_spinner' value='yes' />
@@ -240,6 +242,14 @@ This section summarizes key insights, embeds exported figures, and outlines limi
   <param name='language' value='en-US' />
   <param name='filter' value='publish=yes' />
 </object></div>
+<script type='text/javascript'>
+  var divElement = document.getElementById('viz1759149188351');
+  var vizElement = divElement.getElementsByTagName('object')[0];
+  if ( divElement.offsetWidth > 800 ) { vizElement.style.minWidth='420px';vizElement.style.maxWidth='650px';vizElement.style.width='100%';vizElement.style.minHeight='187px';vizElement.style.maxHeight='587px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px'; } else if ( divElement.offsetWidth > 500 ) { vizElement.style.minWidth='420px';vizElement.style.maxWidth='650px';vizElement.style.width='100%';vizElement.style.minHeight='187px';vizElement.style.maxHeight='587px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px'; } else { vizElement.style.width='100%';vizElement.style.height='727px'; }
+  var scriptElement = document.createElement('script');
+  scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+  vizElement.parentNode.insertBefore(scriptElement, vizElement);
+</script>
 
 ---
 
@@ -247,14 +257,14 @@ This section summarizes key insights, embeds exported figures, and outlines limi
 
 * **Synthetic enrichment:** User acquisition fields (e.g., `acquisition_channel`, CAC/ad spend) are enriched and may not reflect production distributions.
 * **Schema/coverage:** Missing events or short time windows can bias retention and ROI estimates; metrics are indicative.
-* **Attribution simplification:** Channel attribution is 1‑touch in this demo; multi‑touch or MMM would alter ROI interpretation.
-* **Model scope:** Forecasts/classifiers are compact prototypes (no hyper‑intensive tuning). Calibration and backtesting are included to keep results honest.
+* **Attribution simplification:** Channel attribution is 1â€‘touch in this demo; multiâ€‘touch or MMM would alter ROI interpretation.
+* **Model scope:** Forecasts/classifiers are compact prototypes (no hyperâ€‘intensive tuning). Calibration and backtesting are included to keep results honest.
 
 ---
 
 ### License & Credits
 
 * Code is released under **MIT License** (see `LICENSE`).
-* Dataset: Cookie Cats (Kaggle) — used here for educational/demo purposes with synthetic UA enrichment.
+* Dataset: Cookie Cats (Kaggle) â€” used here for educational/demo purposes with synthetic UA enrichment.
 
 ---
