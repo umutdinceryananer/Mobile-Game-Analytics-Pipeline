@@ -7,8 +7,6 @@ data/*
 !data/config/
 
 # Still ignore raw/processed/interim/external
-data/raw/
-data/processed/
 data/interim/
 data/external/
 
